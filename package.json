@@ -47,7 +47,7 @@
     "login": "node dist/cli.js login",
     "status": "node dist/cli.js status",
     "doctor": "node dist/cli.js doctor",
-    "prepublishOnly": "pnpm run typecheck && pnpm run build"
+    "prepublishOnly": "tsc --noEmit && tsc"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
