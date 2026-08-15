@@ -7,11 +7,14 @@ Brightspace is quirky in ways that are worth knowing before you start.
 
 ```bash
 pnpm install
-pnpm exec playwright install chromium
 pnpm build
 node dist/cli.js login     # opens a browser; you sign in yourself
 node dist/cli.js doctor    # confirms the session works
 ```
+
+Sign-in drives an already-installed Chrome or Edge via `playwright-core`, so
+there is no browser download. If you have neither, `npx playwright install
+chromium` gives you one; `MYCOURSES_BROWSER` forces a specific channel.
 
 Set `MYCOURSES_HOST` to your own school's Brightspace hostname if it isn't
 RIT's. If you're unsure whether your instance exposes the API at all, open

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { D2LClient } from './api/client.js';
@@ -35,7 +37,7 @@ export function createServer(): { server: McpServer; client: D2LClient } {
   return { server, client };
 }
 
-async function main(): Promise<void> {
+export async function startServer(): Promise<void> {
   const { server } = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
@@ -43,7 +45,18 @@ async function main(): Promise<void> {
   console.error(`mycourses-mcp ready (host=${HOST}, auth=${AUTH_KIND})`);
 }
 
-main().catch((error) => {
-  console.error('mycourses-mcp failed to start:', error);
-  process.exit(1);
-});
+/**
+ * Only self-start when run directly (`node dist/index.js`). The CLI imports
+ * this module to serve `mycourses-mcp` with no arguments, and must not trigger
+ * a second server.
+ */
+const isEntryPoint =
+  process.argv[1] !== undefined &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isEntryPoint) {
+  startServer().catch((error) => {
+    console.error('mycourses-mcp failed to start:', error);
+    process.exit(1);
+  });
+}

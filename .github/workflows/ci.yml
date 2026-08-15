@@ -31,5 +31,13 @@ jobs:
       # Boots the MCP server over stdio and lists its tools. Touches no
       # network and needs no Brightspace session, so it is safe in CI and
       # catches broken tool registrations.
-      - name: Tool surface smoke test
+      - name: Tool surface smoke test (module entry)
         run: node scripts/list-tools.mjs
+
+      # The published bin must also serve MCP when run with no arguments,
+      # since that is what `npx -y mycourses-mcp` does.
+      - name: Tool surface smoke test (bin entry)
+        run: node scripts/list-tools.mjs dist/cli.js
+
+      - name: Verify the package contents
+        run: npm pack --dry-run

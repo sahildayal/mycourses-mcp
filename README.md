@@ -48,24 +48,62 @@ recent matches.
 
 ## Setup
 
-```bash
-pnpm install
-pnpm exec playwright install chromium
-pnpm build
-
-node dist/cli.js login     # opens a browser; you sign in and clear MFA yourself
-node dist/cli.js doctor    # confirms the session works
-```
-
-Register with Claude Code:
+Two commands. No clone, no build.
 
 ```bash
-claude mcp add mycourses -- node /absolute/path/to/mycourses-mcp/dist/index.js
+npx -y mycourses-mcp login                       # sign in; a browser opens
+claude mcp add mycourses -- npx -y mycourses-mcp # register with Claude Code
 ```
 
-Not at RIT? Set `MYCOURSES_HOST` to your school's Brightspace hostname. To
-check your instance exposes the API, open `https://YOUR-HOST/d2l/api/versions/`
-in a browser — no login needed, and a JSON list of product codes means yes.
+That's it. `login` opens a browser where **you** enter your password and clear
+MFA yourself, then stores the resulting session encrypted in your user profile.
+
+Check it worked:
+
+```bash
+npx -y mycourses-mcp doctor
+```
+
+**Not at RIT?** Set `MYCOURSES_HOST` to your school's Brightspace hostname:
+
+```bash
+MYCOURSES_HOST=brightspace.example.edu npx -y mycourses-mcp login
+```
+
+To check your instance exposes the API at all, open
+`https://YOUR-HOST/d2l/api/versions/` in a browser — no login needed, and a
+JSON list of product codes means yes.
+
+For other MCP clients, the server speaks stdio and is started by running
+`npx -y mycourses-mcp` with no arguments:
+
+```jsonc
+{
+  "mcpServers": {
+    "mycourses": {
+      "command": "npx",
+      "args": ["-y", "mycourses-mcp"],
+      "env": { "MYCOURSES_HOST": "mycourses.rit.edu" }
+    }
+  }
+}
+```
+
+### Browsers
+
+Sign-in drives a browser you already have — Chrome, then Edge, then a
+Playwright-managed Chromium, whichever it finds first. **Nothing is
+downloaded.** Force one with `MYCOURSES_BROWSER=msedge`, or if you have none of
+them, run `npx playwright install chromium` once.
+
+### From source
+
+```bash
+git clone https://github.com/sahildayal/mycourses-mcp
+cd mycourses-mcp
+pnpm install && pnpm build
+node dist/cli.js login
+```
 
 ## How authentication works
 

@@ -1,5 +1,5 @@
 import { mkdir } from 'node:fs/promises';
-import type { BrowserContext } from 'playwright';
+import type { BrowserContext } from 'playwright-core';
 import { browserProfile } from '../config.js';
 
 export interface StoredCookie {
@@ -64,14 +64,46 @@ async function harvest(
   };
 }
 
+/**
+ * Browser channels to try, in order. Driving an already-installed Chrome or
+ * Edge means `npx mycourses-mcp` needs no 190 MB browser download — which
+ * matters a lot when the whole pitch is one-command setup. Falls back to a
+ * Playwright-managed build for anyone who has run `playwright install`.
+ */
+const BROWSER_CHANNELS = ['chrome', 'msedge', 'chromium'];
+
 async function openContext(headless: boolean): Promise<BrowserContext> {
-  const { chromium } = await import('playwright');
+  const { chromium } = await import('playwright-core');
   const profile = browserProfile();
   await mkdir(profile, { recursive: true });
-  return chromium.launchPersistentContext(profile, {
-    headless,
-    viewport: { width: 1280, height: 900 },
-  });
+
+  const options = { headless, viewport: { width: 1280, height: 900 } };
+  const channels = process.env.MYCOURSES_BROWSER
+    ? [process.env.MYCOURSES_BROWSER]
+    : BROWSER_CHANNELS;
+
+  const failures: string[] = [];
+  for (const channel of channels) {
+    try {
+      return await chromium.launchPersistentContext(profile, { ...options, channel });
+    } catch (error) {
+      failures.push(`${channel}: ${(error as Error).message.split('\n')[0]}`);
+    }
+  }
+
+  // Last resort: whatever Playwright has downloaded locally, if anything.
+  try {
+    return await chromium.launchPersistentContext(profile, options);
+  } catch (error) {
+    failures.push(`bundled: ${(error as Error).message.split('\n')[0]}`);
+  }
+
+  throw new Error(
+    'Could not launch a browser to sign in with. Install Google Chrome or ' +
+      'Microsoft Edge, or run `npx playwright install chromium`. Set ' +
+      'MYCOURSES_BROWSER to force a channel (chrome, msedge, chromium).\n\n' +
+      `Tried:\n  ${failures.join('\n  ')}`,
+  );
 }
 
 /**

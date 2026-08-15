@@ -76,10 +76,15 @@ async function cmdLogout(): Promise<void> {
 
 const USAGE = `mycourses-mcp <command>
 
-  login    Open a browser, sign in to myCourses, and store the session
-  status   Show whether a usable session is stored
-  doctor   Check API reachability and verify the stored session works
-  logout   Delete the stored session
+  (no command)  Start the MCP server on stdio — this is what an MCP client runs
+  serve         Same as above, stated explicitly
+  login         Open a browser, sign in, and store the session
+  status        Show whether a usable session is stored
+  doctor        Check API reachability and verify the stored session works
+  logout        Delete the stored session
+
+Set MYCOURSES_HOST for a school other than RIT, e.g.
+  MYCOURSES_HOST=brightspace.example.edu mycourses-mcp login
 `;
 
 async function main(): Promise<void> {
@@ -93,9 +98,22 @@ async function main(): Promise<void> {
       return cmdDoctor();
     case 'logout':
       return cmdLogout();
-    default:
+    case '--help':
+    case '-h':
+    case 'help':
       log(USAGE);
-      process.exitCode = command ? 1 : 0;
+      return;
+    case undefined:
+    case 'serve': {
+      // No command means "be an MCP server", so a client can just run
+      // `npx -y mycourses-mcp` with no arguments.
+      const { startServer } = await import('./index.js');
+      return startServer();
+    }
+    default:
+      log(`Unknown command: ${command}\n`);
+      log(USAGE);
+      process.exitCode = 1;
   }
 }
 

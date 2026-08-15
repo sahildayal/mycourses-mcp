@@ -9,9 +9,14 @@ import { dirname, join } from 'node:path';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
+// Optional entry override, so both server entry points can be smoke-tested:
+//   node scripts/list-tools.mjs            -> dist/index.js
+//   node scripts/list-tools.mjs dist/cli.js -> the bin, with no arguments
+const entry = process.argv[2] ?? join(root, 'dist', 'index.js');
+
 const transport = new StdioClientTransport({
   command: process.execPath,
-  args: [join(root, 'dist', 'index.js')],
+  args: [entry],
 });
 
 const client = new Client({ name: 'list-tools', version: '0.0.0' });
