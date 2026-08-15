@@ -1,0 +1,28 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Credentials and session material — must never be committed.
+# The real store lives in %APPDATA%/mycourses-mcp, but guard against strays.
+.env
+.env.*
+!.env.example
+*.session.json
+session.enc
+key
+browser-profile/
+storage-state.json
+cookies.json
+
+# Watcher output — dated reports, run log, and the seen-courses baseline.
+# Contains real course names, so it stays local.
+reports/
+
+# Downloaded course material
+downloads/
+*.pdf
+*.docx
+*.pptx
+
+.DS_Store
+Thumbs.db

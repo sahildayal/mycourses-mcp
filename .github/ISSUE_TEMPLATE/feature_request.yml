@@ -1,0 +1,50 @@
+name: Feature request
+description: Suggest a new tool or an improvement to an existing one
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the task, not the implementation.
+      placeholder: I want to see which classmates are in a group with me without opening the site.
+    validations:
+      required: true
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: Relevant Brightspace API route, if you know it
+      description: See https://docs.valence.desire2learn.com
+      placeholder: GET /d2l/api/le/(version)/(orgUnitId)/groups/
+    validations:
+      required: false
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Does this read or write?
+      options:
+        - Read only
+        - It writes something to Brightspace
+        - Not sure
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        If it writes, note that every write path in this project is two-phase:
+        the first call returns a preview and a single-use token, and only a
+        second call performs the action. New write tools are expected to follow
+        the same pattern.
+
+  - type: checkboxes
+    id: scope-check
+    attributes:
+      label: Scope
+      options:
+        - label: >
+            This is not about quizzes or exams. Those are deliberately out of
+            scope and will not be added.
+          required: true

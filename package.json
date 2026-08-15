@@ -1,0 +1,39 @@
+{
+  "name": "mycourses-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for RIT myCourses (D2L Brightspace) — read course data, submit assignments, and post to discussions",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "mycourses-mcp": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "setup": "playwright install chromium",
+    "start": "node dist/index.js",
+    "login": "node dist/cli.js login",
+    "status": "node dist/cli.js status",
+    "doctor": "node dist/cli.js doctor"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "mammoth": "^1.12.1",
+    "pdf-parse": "^2.4.5",
+    "playwright": "^1.62.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.3"
+  }
+}

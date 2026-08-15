@@ -1,0 +1,90 @@
+name: Bug report
+description: A tool fails, returns wrong data, or behaves unexpectedly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Brightspace behaves differently from school to school — instructors and
+        admins can switch features off per course. The details below are what
+        make a report debuggable by someone who cannot see your instance.
+
+        **Never paste cookies, session values, or an `X-Csrf-Token`.** If you
+        include a raw response, redact identifiers first.
+
+  - type: input
+    id: host
+    attributes:
+      label: Brightspace host
+      description: The hostname you connect to.
+      placeholder: mycourses.rit.edu
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: API versions
+      description: >
+        From `auth_status`, or open https://YOUR-HOST/d2l/api/versions/ in a
+        browser — it needs no login.
+      placeholder: lp 1.62, le 1.96
+    validations:
+      required: true
+
+  - type: input
+    id: tool
+    attributes:
+      label: Which tool
+      placeholder: list_my_submissions
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The error or wrong output, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Ran `node dist/cli.js doctor` — session OK
+        2. Called list_assignments on course 123456 — worked
+        3. Called list_my_submissions on assignment 789 — 403
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Does it fail everywhere?
+      options:
+        - Every course I tried
+        - Only some courses
+        - Only one specific course or assignment
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: OS and Node version
+      placeholder: Windows 11, Node 22.11.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before filing
+      options:
+        - label: "`node dist/cli.js doctor` reports a working session"
+          required: true
+        - label: I have not pasted any session cookie, token, or credential
+          required: true
