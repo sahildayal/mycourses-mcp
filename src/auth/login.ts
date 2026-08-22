@@ -24,14 +24,17 @@ async function harvest(
   context: BrowserContext,
   host: string,
 ): Promise<SessionData | null> {
+  const page = context.pages()[0];
+  if (!page) return null;
+
+  const url = page.url();
+  if (!url.includes(`://${host}/d2l/`)) return null;
+
   const cookies = await context.cookies(`https://${host}/`);
   const hasSession = cookies.some(
     (c) => c.name === 'd2lSessionVal' && c.value.length > 0,
   );
   if (!hasSession) return null;
-
-  const page = context.pages()[0];
-  if (!page) return null;
 
   // The key is normally `XSRF.Token`, but D2L has shuffled it before. Scan
   // rather than hard-code so a rename doesn't silently break every write.
@@ -47,6 +50,21 @@ async function harvest(
   });
 
   if (!xsrfToken) return null;
+
+  const cookieHeader = cookies
+    .filter((c) => SESSION_COOKIES.includes(c.name) || c.name.startsWith('d2l'))
+    .map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+
+  // Validate that the session is actually authenticated before capturing
+  try {
+    const res = await fetch(`https://${host}/d2l/api/lp/1.63/users/whoami`, {
+      headers: { Cookie: cookieHeader },
+    });
+    if (!res.ok) return null;
+  } catch {
+    return null;
+  }
 
   return {
     host,
